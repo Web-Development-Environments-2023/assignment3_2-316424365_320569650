@@ -67,7 +67,25 @@ paths:
       summary: logout a user from the system and delete his cookie
       responses:
         "200":
-          description: "the user has ben successfully logged out"
+          description: "the user has been successfully logged out"
+  /home:
+    get:
+      tags:
+      - Auth
+      summary: The home page of Busa's Recipes
+      description: shows the home page with 3 random recipes on the left and 3 last seen recipes of the logged in on the right.
+      operationId: homeBusaPage
+      responses:
+        "200":
+          description: data about the user's favorites recipes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+      security:
+      - cookieAuth: []
   /users/favorites:
     get:
       tags:
@@ -227,4 +245,43 @@ components:
           type: boolean
           description: indication if the recipe is gluten free
           example: false
-  
+        wasWatched:
+          type: boolean
+          description: indication if the recipe was watched by logged in user
+        savedToFavourites:
+          type: boolean
+          description: indication if the recipe was saved to user's favourites  
+    FullRecipe:
+      required:
+      - ingredients
+      - instructions
+      - recipePreview
+      - servings
+      type: object
+      properties:
+        recipePreview:
+          $ref: '#/components/schemas/RecipePreview'
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        instructions:
+          type: string
+          description: the instructions of making the recipe
+        servings:
+          type: number
+          description: the number of the servings of the recipe
+    Ingredient:
+      required:
+      - ingredientName
+      - quantity
+      type: object
+      properties:
+        ingredientName:
+          type: string
+          description: the name of the ingredient
+        quantity:
+          type: string
+          description: the quantity of the ingredient in the recipe and the unit
+          format: <quantity> <units>
+          example: 50 milliliter
