@@ -25,21 +25,36 @@ async function getRecipeDetails(recipe_id) {
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
 
     return {
-        id: id,
-        title: title,
-        readyInMinutes: readyInMinutes,
-        image: image,
-        popularity: aggregateLikes,
-        vegan: vegan,
-        vegetarian: vegetarian,
-        glutenFree: glutenFree,
-        
-    }
+        recepiePreview:{
+            id: id,
+            title: title,
+            readyInMinutes: readyInMinutes,
+            image: image,
+            popularity: aggregateLikes,
+            vegan: vegan,
+            vegetarian: vegetarian,
+            glutenFree: glutenFree,
+
+        }
+    }    
 }
 
 
+async function getRecipesPreview(recipes_id_array, user_id){
+    let res = [];
+    let recepiesPreview = [];
+    recipes_id_array.forEach(recipe_id => {
+        recepiesPreview.push(getRecipeDetails(recipe_id));
+    });
+    await Promise.all(recepiesPreview)
+        .then((results)=>{
+            res = results.map((rec)=>rec.recepiePreview);
+        });
+    return res;
+}
+
 
 exports.getRecipeDetails = getRecipeDetails;
-
+exports.getRecipesPreview = getRecipesPreview;
 
 
