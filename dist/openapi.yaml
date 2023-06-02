@@ -127,6 +127,34 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
+  /users/{userId}/familyRecipes:
+    get:
+      tags:
+      - Users
+      summary: Return Full details on recipe by his ID
+      description: Return Full details on recipe by his ID
+      parameters:
+      - name: userId
+        in: path
+        description: users's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: List of user's Family's Recipes details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FamilyRecipe'
+        "401":
+          description: user is not authorized
+      security:
+      - cookieAuth: []
   /recipes/show_details/{recipeId}:
     get:
       tags:
@@ -336,6 +364,37 @@ components:
         servings:
           type: number
           description: the number of the servings of the recipe
+    FamilyRecipe:
+      require:
+      - owner
+      - name
+      - occasion
+      - ingredients
+      - preperation
+      - image
+      type: object
+      properties:
+        owner:
+          type: string
+          description: owner of family recipe
+        name:
+          type: string
+          description: name of family recipe
+        occasion:
+          type: string
+          description: the occassion when making the family recipe
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        preperation:
+          type: string
+          description: the steps making the family recipe
+        image:
+          type: string
+          description: recipe image
+          format: URL
+          example: https://i1.sndcdn.com/artworks-000225593758-z9kf58-t500x500.jpg
     Ingredient:
       required:
       - ingredientName
