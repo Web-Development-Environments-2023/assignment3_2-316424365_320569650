@@ -14,6 +14,7 @@ async function getLastWatchedRecipes(user_id, number){
     return lastWatchedRecipes;
 }
 
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getLastWatchedRecipes = getLastWatchedRecipes;

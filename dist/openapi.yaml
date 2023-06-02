@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Recipes api
+  title: Busa's Recipes
   description: API for recipes project
   version: 1.0.1
 servers:
@@ -127,12 +127,12 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
-  /recipes/{recipeId}:
+  /recipes/show_details/{recipeId}:
     get:
       tags:
       - Recipes
-      summary: Return preview details on recipe by his ID
-      description: Return preview details on recipe by his ID
+      summary: Return Full details on recipe by his ID
+      description: Return Full details on recipe by his ID
       parameters:
       - name: recipeId
         in: path
@@ -148,9 +148,74 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecipePreview'
+                $ref: '#/components/schemas/FullRecipe'
         "404":
           description: recipeId is not exists
+  /recipes/search:
+    get:
+      tags:
+      - Recipes
+      summary: search page for recipes
+      description: "given a recipe name and an option to add cuisines, diets and intolerances show the recipes"
+      operationId: recipeSearch
+      parameters:
+      - name: recipeName
+        in: query
+        description: name of the Recipe
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: cuisine
+        in: query
+        description: cuisine of the Recipe
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: diet
+        in: query
+        description: diet of the Recipe
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: intolerance
+        in: query
+        description: intolerance of the Recipe
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: amount
+        in: query
+        description: the amount of results for the search to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Recipe's details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        "400":
+          description: bad request
 components:
   schemas:
     User:
@@ -250,12 +315,12 @@ components:
           description: indication if the recipe was watched by logged in user
         savedToFavourites:
           type: boolean
-          description: indication if the recipe was saved to user's favourites  
+          description: indication if the recipe was saved to user's favourites
     FullRecipe:
       required:
+      - recipePreview
       - ingredients
       - instructions
-      - recipePreview
       - servings
       type: object
       properties:
@@ -280,8 +345,9 @@ components:
         ingredientName:
           type: string
           description: the name of the ingredient
+          example: butter
         quantity:
           type: string
           description: the quantity of the ingredient in the recipe and the unit
           format: <quantity> <units>
-          example: 50 milliliter
+          example: 1 tbsp

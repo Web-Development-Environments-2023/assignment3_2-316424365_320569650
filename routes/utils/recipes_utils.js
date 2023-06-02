@@ -29,7 +29,7 @@ async function getRecipeDetails(recipe_id, user_id) {
 
     const isSaved = await checkDBForRecord(user_id, recipe_id, 'FavoriteRecipes')
     return {
-        recipiePreview:{ 
+        recipePreview:{ 
             id: id,
             title: title,
             readyInMinutes: readyInMinutes,
@@ -41,12 +41,56 @@ async function getRecipeDetails(recipe_id, user_id) {
             wasWatched: isWatched,
             savedToFavourites: isSaved}
     }
-    // return {
-    //     recipiePreview:{ 
-    //         id: recipe_id,
-    //         wasWatched: isWatched,
-    //         savedToFavourites: isSaved}
-    // }
+
+}
+
+async function getRecipeFullDetails(recipe_id, session){
+    let user_id;
+    let recipe_info = await getRecipeInformation(recipe_id);
+    let { 
+        id, title, readyInMinutes, image, aggregateLikes, vegan,
+         vegetarian, glutenFree, servings, instructions, extendedIngredients } = recipe_info.data;
+    // if the logged user tries to access the page
+    if(session && session.user_id)
+    {
+        user_id = session.user_id
+        // insert recipe to watchedlist
+        await addToDB(user_id, recipe_id, 'LastWatched')
+    }
+    const isWatched = await checkDBForRecord(user_id, recipe_id, 'LastWatched');
+    const isSaved = await checkDBForRecord(user_id, recipe_id, 'FavoriteRecipes');
+    //get from the extended ingredients the name, amount and unit
+    const listOfIngredients = await getNameAndQuantityIngredients(extendedIngredients);
+
+    return {
+        recipePreview:{ 
+            id: id,
+            title: title,
+            readyInMinutes: readyInMinutes,
+            image: image,
+            popularity: aggregateLikes,
+            vegan: vegan,
+            vegetarian: vegetarian,
+            glutenFree: glutenFree,
+            wasWatched: isWatched,
+            savedToFavourites: isSaved},
+        ingredients: listOfIngredients,    
+        instructions: instructions,
+        servings: servings
+    }
+}
+
+async function getNameAndQuantityIngredients(extendedIngredients){
+    let listOfIngredients = []
+
+    for(ingredient of extendedIngredients){
+        listOfIngredients.push({
+            ingredientName: ingredient.name,
+            quantity: ingredient.amount.toString()+" "+ ingredient.unit
+
+        })
+    }
+    return listOfIngredients;
 }
 
 async function getRecipesPreview(recipes_id_array, user_id){
@@ -57,7 +101,7 @@ async function getRecipesPreview(recipes_id_array, user_id){
     }
     await Promise.all(recepiesPreview)
         .then((results)=>{
-            res = results.map((rec)=>rec.recipiePreview);
+            res = results.map((rec)=>rec.recipePreview);
         });
     return res;
 }
@@ -116,8 +160,83 @@ async function checkDBForRecord(user_id, recipe_id, table)
 
 }
 
+async function addToDB(user_id, recipe_id, table){
+    await DButils.execQuery(`insert into ${table}(user_id, recipe_id) values (${user_id},${recipe_id})`);
+}
+
+async function searchForRecipes(recipeName, cuisine, diet, intolerance, amount, session)
+{
+    let user_id;
+    if(session){
+        user_id = session.user_id
+        console.log(`This Session is user: ${user_id}`)
+    }
+    console.log(session.saved_search)
+    if(session.saved_search && recipeName === undefined && cuisine === undefined && diet === undefined 
+        && intolerance === undefined && amount === undefined)
+        {
+        recipeName = session.saved_search.recipeName
+        cuisine = session.saved_search.cuisine
+        diet = session.saved_search.diet
+        intolerance = session.saved_search.intolerance
+        amount = session.saved_search.amount
+    }
+    //join the arrays to string seperated by comma:
+    if(Array.isArray(cuisine)){
+        cuisine = cuisine.join(',')
+    }
+    if(Array.isArray(diet)){
+        diet = diet.join(',')
+
+    }
+    if(Array.isArray(intolerance)){
+        intolerance = intolerance.join(',') 
+
+    }
+    // get the recipes from api
+    const filteredRecipes =  await axios.get(`${api_domain}/complexSearch`, {
+        params: {
+            query: recipeName,
+            cuisine: cuisine,
+            intolerances: intolerance,
+            diet: diet,
+            number: amount,
+            instructionsRequired: true,
+            addRecipeInformation:true,
+            apiKey: process.env.spooncular_apiKey
+        }})
+    // get from the recipes the InstructionPreviewRecipe
+    const filteredRecipesReformated = await formatRecipesToPreviewRecipe(filteredRecipes.data.results, user_id)
+    return filteredRecipesReformated;
+}
+
+async function formatRecipesToPreviewRecipe(recipesFromSpoonacular, user_id){
+    let PreviewRecipes = []
+    for (let recipe of recipesFromSpoonacular){
+
+        let isSaved = await checkDBForRecord(user_id, recipe.id, 'FavoriteRecipes')
+        let isWatched = await checkDBForRecord(user_id, recipe.id, 'LastWatched')
+        PreviewRecipes.push({
+            recipePreview:{
+                id: recipe.id,
+                title: recipe.title,
+                readyInMinutes: recipe.readyInMinutes,
+                image: recipe.image,
+                popularity: recipe.aggregateLikes,
+                vegan: recipe.vegan,
+                vegetarian: recipe.vegetarian,
+                glutenFree: recipe.glutenFree,
+                wasWatched: isWatched,
+                savedToFavourites: isSaved
+            }
+        })
+    }
+    return PreviewRecipes;
+}
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRandomRecipes = getThreeRandomRecipes;
 exports.getRecipesPreview = getRecipesPreview;
+exports.getRecipeFullDetails = getRecipeFullDetails;
+exports.searchForRecipes = searchForRecipes;
 
