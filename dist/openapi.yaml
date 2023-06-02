@@ -37,8 +37,6 @@ paths:
           description: A new user has been added
         "400":
           description: wrong input parameters
-        "404":
-          description: page not found
   /login:
     post:
       tags:
@@ -62,8 +60,6 @@ paths:
               schema:
                 type: string
                 example: session=87s97sdhgf279293f8w0e9
-        "400":
-          description: Username or password is wrong
         "401":
           description: Authentication failed
   /logout:
@@ -284,9 +280,9 @@ components:
     FullRecipe:
       type: object
       required:
+      - recipePreview
       - ingredients
       - instructions
-      - recipePreview
       - servings
       properties:
         recipePreview:
@@ -301,6 +297,37 @@ components:
         servings:
           type: number
           description: the number of the servings of the recipe
+    FamilyRecipe:
+      require:
+      - owner
+      - name
+      - occasion
+      - ingredients
+      - preperation
+      - image
+      type: object
+      properties:
+        owner:
+          type: string
+          description: owner of family recipe
+        name:
+          type: string
+          description: name of family recipe
+        occasion:
+          type: string
+          description: the occassion when making the family recipe
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        preperation:
+          type: string
+          description: the steps making the family recipe
+        image:
+          type: string
+          description: recipe image
+          format: URL
+          example: https://i1.sndcdn.com/artworks-000225593758-z9kf58-t500x500.jpg
     Ingredient:
       required:
       - ingredientName
@@ -310,6 +337,7 @@ components:
         ingredientName:
           type: string
           description: the name of the ingredient
+          example: butter
         quantity:
           type: string
           description: the quantity of the ingredient in the recipe and the unit

@@ -45,7 +45,7 @@ router.get('/favorites', async (req,res,next) => {
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+    const results = await recipe_utils.getRecipesPreview(recipes_id_array, user_id);
     res.status(200).send(results);
   } catch(error){
     next(error); 
@@ -88,6 +88,25 @@ router.post('/MyRecipes', async(req,res,next) => {
     next(error);
   }
 })
+
+router.get('/:userId/familyRecipes', async(req, res, next) => {
+  try{
+    if(req.params.userId != req.user_id){
+      throw new Error(`user Id mismatch. current userId:${req.user_id}, requested:${req.params.userId}`)
+    }
+    const user_id = req.user_id
+    const familyRecipes = await user_utils.getFamilyRecipes(user_id)
+    res.status(200).send(familyRecipes)
+  }catch(error){
+    next(error)
+  }
+  })
+  
+  router.use('/:userId/familyRecipes', function(err, req, res, next){
+    console.log(err.message);
+    res.status(401).send("User is unauthorized to enter the page")
+  })
+  
 
 module.exports = router;
 
