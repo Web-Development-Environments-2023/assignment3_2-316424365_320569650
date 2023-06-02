@@ -20,12 +20,14 @@ async function getRecipeInformation(recipe_id) {
 
 
 
+
+
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
 
     return {
-        recepiePreview:{
+        recipePreview:{
             id: id,
             title: title,
             readyInMinutes: readyInMinutes,
@@ -48,10 +50,9 @@ async function getRecipesPreview(recipes_id_array, user_id){
     });
     await Promise.all(recepiesPreview)
         .then((results)=>{
-            res = results.map((rec)=>rec.recepiePreview);
+            res = results.map((rec)=>rec.recipePreview);
         });
     return res;
-    //qdadadsdsa
 }
 
 
