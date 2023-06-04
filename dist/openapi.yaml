@@ -70,7 +70,6 @@ paths:
       responses:
         "200":
           description: "the user has ben successfully logged out"
-
   /home:
     get:
       tags:
@@ -89,7 +88,6 @@ paths:
                   $ref: '#/components/schemas/RecipePreview'
       security:
       - cookieAuth: []
-
   /users/favorites:
     get:
       tags:
@@ -151,7 +149,6 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
-
     post:
       tags:
       - Users
@@ -169,22 +166,12 @@ paths:
           description: A new recipe has been added successfully 
         "400":
           description: wrong input parameters
-
-  /users/{userId}/familyRecipes:
+  /users/familyRecipes:
     get:
       tags:
       - Users
-      summary: Return Full details on recipe by his ID
-      description: Return Full details on recipe by his ID
-      parameters:
-      - name: userId
-        in: path
-        description: users's id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
+      summary: user's family recipes
+      description: Returns logged user's family recipes
       responses:
         "200":
           description: List of user's Family's Recipes details
@@ -198,7 +185,6 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
-  
   /recipes/show_details/{recipeId}:
     get:
       tags:
@@ -289,7 +275,6 @@ paths:
                   $ref: '#/components/schemas/RecipePreview'
         "400":
           description: bad request
-
 components:
   schemas:
     User:
@@ -380,13 +365,6 @@ components:
           type: boolean
           description: indication if the recipe is gluten free
           example: false
-        # wasWatched:
-        #   type: boolean
-        #   description: indication if the recipe was watched by logged in user
-        # savedToFavourites:
-        #   type: boolean
-        #   description: indication if the recipe was saved to user's favourites
-
     RecipePreview:
       type: object
       properties:
@@ -517,7 +495,6 @@ components:
           description: the quantity of the ingredient in the recipe and the unit
           format: <quantity> <units>
           example: 1 tbsp
-
     newRecipePreview:
       type: object
       properties:

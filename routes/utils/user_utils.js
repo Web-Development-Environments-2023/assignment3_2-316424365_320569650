@@ -60,8 +60,7 @@ async function addMyRecipe(user_id, recipePreview, recipeIngredients, recipePrep
     }
     let ingredientsJson = JSON.stringify(ingredients);
 
-    await DButils.execQuery(`INSERT INTO usersRecipes (user_id, title, image, readyInMinutes, vegetarian, vegan, glutenFree, ingredients, instructions, servings) VALUES(${(user_id)}, '${(recipePreview.title)}', '${recipePreview.image}', '${recipePreview.readyInMinutes}', ${recipePreview.vegetarian},
-    ${recipePreview.vegan},'${(recipePreview.glutenFree)}','${(ingredientsJson)}', '${(recipePrepInstructions)}', ${numOfDishes})`);
+    await DButils.execQuery(`INSERT INTO usersRecipes (user_id, title, image, readyInMinutes, vegetarian, vegan, glutenFree, ingredients, instructions, servings) VALUES(${(user_id)}, '${(recipePreview.title)}', '${recipePreview.image}', '${recipePreview.readyInMinutes}', ${recipePreview.vegetarian}, ${recipePreview.vegan},${(recipePreview.glutenFree)},'${(ingredientsJson)}', '${(recipePrepInstructions)}', ${numOfDishes})`);
 }
 
 
