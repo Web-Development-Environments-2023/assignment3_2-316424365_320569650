@@ -1,16 +1,17 @@
+---
 openapi: 3.0.0
 info:
   title: Busa's Recipes
-  description: This is Daniel Kazakov's and Itay Paikin's recipes website API
-  version: 1.0.1
+  description: This is Daniel Kazakov's and Itay Paikin's
   contact:
-    email: kazadan@post.bgu.ac.il, itaypai@post.bgu.ac.il
+    email: kazadan@post.bgu.ac.il
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
 servers:
-# local:
-- url: "http://127.0.0.1:3000"
-# remote:
-# - url: "http://132.72.65.211"
-  description: SwaggerHub API Auto Mocking hey
+- url: https://virtserver.swaggerhub.com/KAZADAN_1/SISE_Assignment3/1.0.0
+  description: SwaggerHub API Auto Mocking
 tags:
 - name: Auth
   description: All authentication related routes
@@ -42,7 +43,7 @@ paths:
       tags:
       - Auth
       summary: Login an exist user
-      description: by giving username and password an exist user logs in to the system 
+      description: by giving username and password an exist user logs in to the system
       requestBody:
         content:
           application/json:
@@ -65,11 +66,11 @@ paths:
   /logout:
     post:
       tags:
-        - Auth
+      - Auth
       summary: logout a user from the system and delete his cookie
       responses:
         "200":
-          description: "the user has ben successfully logged out"
+          description: the user has ben successfully logged out
   /home:
     get:
       tags:
@@ -116,12 +117,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                recipeId:
-                  type: string
-                  description: reciepe's id which the user saved
-                  example: 716429
+              $ref: '#/components/schemas/users_favorites_body'
       responses:
         "200":
           description: The Recipe successfully saved as favorite
@@ -129,12 +125,11 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
-
   /users/myRecipes:
     get:
       tags:
       - Users
-      description: Get the user recipes that created by him  
+      description: Get the user recipes that created by him
       operationId: myRecipes
       responses:
         "200":
@@ -163,7 +158,7 @@ paths:
         required: true
       responses:
         "201":
-          description: A new recipe has been added successfully 
+          description: A new recipe has been added successfully
         "400":
           description: wrong input parameters
   /users/familyRecipes:
@@ -209,7 +204,6 @@ paths:
                 $ref: '#/components/schemas/FullRecipe'
         "404":
           description: recipeId is not exists
-  
   /recipes/search:
     get:
       tags:
@@ -302,8 +296,7 @@ components:
           maxLength: 10
           minLength: 5
           type: string
-          description: password conatins between 5 to 10 chars, at least one of them
-            is a number and a special char
+          description: "password conatins between 5 to 10 chars, at least one of them is a number and a special char"
           format: password
           example: my_name@12
         email:
@@ -311,11 +304,6 @@ components:
           type: string
           description: user's email
           example: my_name12@gmail.com
-        # image-url:
-        #   pattern: URL
-        #   type: string
-        #   description: URL for the user's image
-        #   example: https://cloudinary.com/
       description: Model containing user info
     LoginScheme:
       type: object
@@ -407,12 +395,11 @@ components:
         savedToFavourites:
           type: boolean
           description: indication if the recipe was saved to user's favourites
-    
     FullRecipe:
       required:
-      - recipePreview
       - ingredients
       - instructions
+      - recipePreview
       - servings
       type: object
       properties:
@@ -428,12 +415,11 @@ components:
         servings:
           type: number
           description: the number of the servings of the recipe
-    
     MyRecipe:
       required:
-      - newRecipePreview
       - ingredients
       - instructions
+      - newRecipePreview
       - servings
       type: object
       properties:
@@ -451,12 +437,12 @@ components:
           description: the number of the servings of the recipe
     FamilyRecipe:
       required:
-      - owner
+      - image
+      - ingredients
       - name
       - occasion
-      - ingredients
+      - owner
       - preperation
-      - image
       type: object
       properties:
         owner:
@@ -523,5 +509,10 @@ components:
           type: boolean
           description: get indication if the recipe is gluten free
           example: false
-        
-      
+    users_favorites_body:
+      type: object
+      properties:
+        recipeId:
+          type: string
+          description: reciepe's id which the user saved
+          example: "716429"
