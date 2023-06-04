@@ -5,7 +5,7 @@ const DButils = require("./DButils");
 
 
 /**
- * Get recipes list from spooncular response and extract the relevant recipe data for preview
+ * Get recipes list from spooncular response and extract the relevant recipe data for preview   
  * @param {*} recipes_info 
  */
 
@@ -19,6 +19,18 @@ async function getRecipeInformation(recipe_id) {
     });
 }
 
+async function getRecipeInformationFromDB(recipe_id) {
+    let recipe_data = await DButils.execQuery(`SELECT * FROM usersRecipes WHERE recipe_id = ${recipe_id}`);
+    return {
+        id: recipe_data[0].recipe_id,
+        title: recipe_data[0].title,
+        readyInMinutes: recipe_data[0].readyInMinutes,
+        image: recipe_data[0].image,
+        vegan: recipe_data[0].vegan,   
+        vegetarian: recipe_data[0].vegetarian,
+        glutenFree: recipe_data[0].glutenFree
+    };
+}
 
 
 async function getRecipeDetails(recipe_id, user_id) {
@@ -43,6 +55,28 @@ async function getRecipeDetails(recipe_id, user_id) {
     }
 
 }
+
+
+async function getMyRecipeDetails(recipe_id, user_id) {
+    let recipe_info = await getRecipeInformationFromDB(recipe_id);
+    let {id, title, readyInMinutes, image, vegan, vegetarian, glutenFree} = recipe_info;
+    return {
+        recipePreview:{ 
+            id: id,
+            title: title,
+            readyInMinutes: readyInMinutes,
+            image: image,
+            vegan: vegan,
+            vegetarian: vegetarian,
+            glutenFree: glutenFree
+        }
+    }
+}
+
+// async function getRecipeFullDetailsFromDB(recipe_id, session){
+
+// }
+
 
 async function getRecipeFullDetails(recipe_id, session){
     let user_id;
@@ -95,16 +129,31 @@ async function getNameAndQuantityIngredients(extendedIngredients){
 
 async function getRecipesPreview(recipes_id_array, user_id){
     let res = [];
-    let recepiesPreview = [];
+    let recipesPreview = [];
     for(recipe_id of recipes_id_array){
-        recepiesPreview.push(getRecipeDetails(recipe_id, user_id))
+        recipesPreview.push(getRecipeDetails(recipe_id, user_id))
     }
-    await Promise.all(recepiesPreview)
+    await Promise.all(recipesPreview)
         .then((results)=>{
             res = results.map((rec)=>rec.recipePreview);
         });
     return res;
 }
+
+async function getMyRecipesPreview(recipes_id_array, user_id){
+    let res = [];
+    let myRecipesPreview = [];
+    for(recipe_id of recipes_id_array){
+        myRecipesPreview.push(getMyRecipeDetails(recipe_id, user_id))
+    }
+    await Promise.all(myRecipesPreview)
+        .then((results)=>{
+            res = results.map((rec)=>rec.recipePreview);
+        });
+    return res;
+}
+
+
 
 async function getThreeRandomRecipes(session, num){
     //gets 3 random recipes
@@ -239,4 +288,4 @@ exports.getRandomRecipes = getThreeRandomRecipes;
 exports.getRecipesPreview = getRecipesPreview;
 exports.getRecipeFullDetails = getRecipeFullDetails;
 exports.searchForRecipes = searchForRecipes;
-
+exports.getMyRecipesPreview = getMyRecipesPreview;
